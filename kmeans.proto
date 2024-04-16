@@ -1,0 +1,59 @@
+// Filename: kmeans.proto
+
+syntax = "proto3";
+
+package kmeans;
+
+// Service definitions remain the same
+
+// Redefine messages to correct map usage
+message ProcessChunkRequest {
+  int32 mapper_id = 1;
+  repeated string data_points = 2; // Could be filenames or actual data points
+  repeated Centroid centroids = 3;
+}
+
+message ProcessChunkResponse {
+  bool success = 1;
+  string message = 2; // Failure message, if any
+}
+
+message GetPartitionDataRequest {
+  int32 reducer_id = 1;
+}
+
+// New message for holding repeated string fields
+message DataPoints {
+  repeated string points = 1;
+}
+
+message ReduceRequest {
+    int32 reducer_id = 1;
+}
+
+message GetPartitionDataResponse {
+  map<int32, DataPoints> data_points = 1; // Correctly defined map with custom message
+}
+
+message ProcessReduceRequest {
+  int32 reducer_id = 1;
+  map<int32, DataPoints> data_points = 2; // Use the new message here as well
+}
+
+message ProcessReduceResponse {
+  bool success = 1;
+  string message = 2; // Failure message, if any
+  repeated Centroid updated_centroids = 3;
+}
+
+message Centroid {
+  repeated float coordinates = 1;
+}
+
+service MapperService {
+    rpc ProcessChunk(ProcessChunkRequest) returns (ProcessChunkResponse);
+}
+
+service ReducerService {
+    rpc ProcessReduce(ProcessReduceRequest) returns (ProcessReduceResponse);
+}
